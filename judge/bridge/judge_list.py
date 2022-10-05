@@ -33,8 +33,8 @@ class JudgeList(object):
             while node:
                 if isinstance(node.value, PriorityMarker):
                     priority = node.value.priority + 1
-                elif priority >= REJUDGE_PRIORITY and len(self.judges) > 1 and sum(
-                        not judge.working for judge in self.judges) <= 1:
+                elif priority >= REJUDGE_PRIORITY and self.count_not_disabled() > 1 and sum(
+                        not judge.working and not judge.is_disabled for judge in self.judges) <= 1:
                     return
                 else:
                     id, problem, language, source, judge_id = node.value
@@ -51,6 +51,9 @@ class JudgeList(object):
                         del self.node_map[id]
                         break
                 node = node.next
+
+    def count_not_disabled(self):
+        return len(self.judges) - sum(judge.is_disabled for judge in self.judges)
 
     def register(self, judge):
         with self.lock:
@@ -130,7 +133,7 @@ class JudgeList(object):
             else:
                 logger.info('Free judges: %d', len(candidates))
 
-            if len(self.judges) > 1 and len(candidates) == 1 and priority >= REJUDGE_PRIORITY:
+            if self.count_not_disabled() > 1 and len(candidates) == 1 and priority >= REJUDGE_PRIORITY:
                 candidates = []
 
             if candidates:

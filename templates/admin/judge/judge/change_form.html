@@ -6,6 +6,7 @@
         django.jQuery(function ($) {
             $('.disconnect-link').appendTo('div#bottombar').show();
             $('.terminate-link').appendTo('div#bottombar').show();
+            $('.disable-link').appendTo('div#bottombar').show();
         });
     </script>
 {% endblock extrahead %}
@@ -21,6 +22,11 @@
            class="button terminate-link">
             <i class="fa fa-lg fa-plug"></i>
             <span class="text">{% trans "Terminate" %}</span>
+        </a>
+        <a style="display: none" title="{% trans "Disable" %}" href="{% url 'admin:judge_judge_disable' original.pk %}"
+           class="button disable-link">
+            <i class="fa fa-lg fa-ban"></i>
+            <span class="text">{% trans "Disable" %}</span>
         </a>
     {% endif %}
 {% endblock %}

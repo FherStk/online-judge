@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dmoj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-01 23:12+0000\n"
-"PO-Revision-Date: 2021-08-27 00:29\n"
+"POT-Creation-Date: 2022-10-31 00:29+0000\n"
+"PO-Revision-Date: 2022-10-31 01:10\n"
 "Last-Translator: \n"
 "Language-Team: Catalan\n"
 "Language: ca_ES\n"
@@ -28,4 +28,32 @@ msgstr[1] "%d dies %h:%m:%s"
 msgctxt "time format without day"
 msgid "%h:%m:%s"
 msgstr "%h:%m:%s"
+
+#: resources/user_profile.js:47
+msgid "past year"
+msgstr ""
+
+#: resources/user_profile.js:64
+msgid "%(cnt)d total submission"
+msgid_plural "%(cnt)d total submissions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: resources/user_profile.js:69
+msgid "%(cnt)d submission in the last year"
+msgid_plural "%(cnt)d submissions in the last year"
+msgstr[0] ""
+msgstr[1] ""
+
+#: resources/user_profile.js:74
+msgid "%(cnt)d submission in %(year)d"
+msgid_plural "%(cnt)d submissions in %(year)d"
+msgstr[0] ""
+msgstr[1] ""
+
+#: resources/user_profile.js:88
+msgid "%(cnt)d submission on %(date)s"
+msgid_plural "%(cnt)d submissions on %(date)s"
+msgstr[0] ""
+msgstr[1] ""
 

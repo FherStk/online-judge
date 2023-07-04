@@ -40,7 +40,7 @@
         {{ post_to_facebook(request, post, '<i class="fa fa-facebook-official"></i>') }}
         {{ post_to_twitter(request, SITE_NAME + ':', post, '<i class="fa fa-twitter"></i>') }}
     </span>
-    {% include "comments/list.html" %}
+    {#% include "comments/list.html" %#}
 {% endblock %}
 
 {% block bodyend %}

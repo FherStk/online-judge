@@ -20,7 +20,6 @@
                         style: 'width: 100%'
                     })).val();
                     $select.select2({
-                        theme: '{{ DMOJ_SELECT2_THEME }}',
                         data: window.valid_files,
                         allowClear: true,
                         placeholder: ''
@@ -97,7 +96,7 @@
 
             $table.on('add-row', function (e, $tr) {
                 var $order = $tr.find('input').filter('[id$=order]').attr('type', 'hidden').val(++order);
-                $order.after($('<span>', {'class': 'order'}).text($order.val()))
+                $order.after($('<span>', {'class': 'order'}).text($order.val()-1))
                     .after($('<i>', {'class': 'fa fa-fw fa-lg fa-ellipsis-v'}));
 
                 var $opts = $tr.find('input').slice(2, 6);

@@ -120,6 +120,12 @@ class Problem(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('problem name'), db_index=True,
                             help_text=_('The full name of the problem, as shown in the problem list.'),
                             validators=[disallowed_characters_validator])
+    test_cases = models.BooleanField(verbose_name=_('include test cases'), 
+                                     help_text=_('If true, the inputs and otuputs of every test case will be automatically added after the body.'),
+                                     default=False)    
+    authorship_name = models.CharField(max_length=100, verbose_name=_('Author\'s name'), blank=True,
+                                       help_text=_('Use it for attribution purposes, the original autor\'s name will be added at the end of the problem.'))
+    authorship_uri =  models.CharField(max_length=255, verbose_name=_('Autor\'s URI'), blank=True)
     description = models.TextField(verbose_name=_('problem body'), validators=[disallowed_characters_validator])
     authors = models.ManyToManyField(Profile, verbose_name=_('creators'), blank=True, related_name='authored_problems',
                                      help_text=_('These users will be able to edit the problem, '

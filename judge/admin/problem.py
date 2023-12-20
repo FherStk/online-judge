@@ -124,10 +124,10 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         (None, {
             'fields': (
                 'code', 'name', 'is_public', 'is_manually_managed', 'date', 'authors', 'curators', 'testers',
-                'organizations', 'submission_source_visibility_mode', 'is_full_markup',
-                'description', 'license',
+                'organizations', 'submission_source_visibility_mode', 'is_full_markup', 'description', 'test_cases'
             ),
         }),
+        (_('Authorship'), {'fields': (('authorship_name', 'authorship_uri'), 'license')}),
         (_('Social Media'), {'classes': ('collapse',), 'fields': ('og_image', 'summary')}),
         (_('Taxonomy'), {'fields': ('types', 'group')}),
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),

@@ -42,7 +42,8 @@
         #edit-form {
             border: unset;
             background: unset;
-            max-width: 700px;
+            display: block;
+            padding-bottom: 30px;
         }
 
         .settings {
@@ -336,6 +337,11 @@
                         <tr><td>
                             <a href="{{ url('password_change') }}" class="inline-header">
                                 {{ _('Change your password') }}
+                            </a>
+                        </td></tr>
+                        <tr><td>
+                            <a href="{{ url('email_change') }}" class="inline-header">
+                                {{ _('Change your email') }}
                             </a>
                         </td></tr>
                         {% if can_download_data %}

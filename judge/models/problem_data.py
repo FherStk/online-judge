@@ -90,48 +90,53 @@ class ProblemData(models.Model):
                         if(h == 'unicode'): self.unicode = True
                         if(h == 'nobigmath'): self.nobigmath = True
 
+                if(doc.get('pretest_test_cases')):
+                    self._load_problem_test_case(doc, 'pretest_test_cases', False)
+            
                 if(doc.get('test_cases')):
-                    for i, test in enumerate(doc['test_cases']):
-                        ptc = ProblemTestCase()
-                        ptc.dataset = self.problem
-                        ptc.order = i
+                    self._load_problem_test_case(doc, 'test_cases', True)                    
 
-                        if(test.get('type')):
-                            ptc.type = test['type']     
+    def _load_problem_test_case(self, doc, field, is_pretest):
+        for i, test in enumerate(doc[field]):
+            ptc = ProblemTestCase()
+            ptc.dataset = self.problem
+            ptc.is_pretest = is_pretest
+            ptc.order = i
 
-                        if(test.get('is_pretest')):
-                            ptc.is_pretest = True
-                        
-                        if(test.get('in')):
-                            ptc.input_file = test['in']
+            if(test.get('type')):
+                ptc.type = test['type']     
 
-                        if(test.get('out')):
-                            ptc.output_file = test['out'] 
+            if(test.get('is_pretest')):
+                ptc.is_pretest = True
+            
+            if(test.get('in')):
+                ptc.input_file = test['in']
 
-                        if(test.get('points')):
-                            ptc.points = test['points'] 
+            if(test.get('out')):
+                ptc.output_file = test['out'] 
 
-                        if(test.get('generator_args')):
-                            #TODO: check splitlines, maybe a join is needed?
-                            ptc.generator_args = test['generator_args'] 
+            if(test.get('points')):
+                ptc.points = test['points'] 
 
-                        if(test.get('output_prefix_length')):
-                            ptc.output_prefix = doc['output_prefix_length']
+            if(test.get('generator_args')):
+                #TODO: check splitlines, maybe a join is needed?
+                ptc.generator_args = test['generator_args'] 
 
-                        if(test.get('output_limit_length')):
-                            ptc.output_limit = doc['output_limit_length']
+            if(test.get('output_prefix_length')):
+                ptc.output_prefix = doc['output_prefix_length']
 
-                        if(test.get('checker')):
-                            ptc.checker = doc['checker']
+            if(test.get('output_limit_length')):
+                ptc.output_limit = doc['output_limit_length']
 
-                        ptc.is_pretest = False
-                        if(test.get('checker_args')):
-                            #TODO: checker_args()?
-                            ptc.checker_args = ''
-
-                        ptc.save()      
-
-                #self.save()
+            if(test.get('checker')):
+                chk = test['checker']
+                if(isinstance(chk, str)):
+                    ptc.checker = chk
+                else:
+                    ptc.checker = chk['name']
+                    ptc.checker_args = chk['args']                    
+            
+            ptc.save()
 
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:

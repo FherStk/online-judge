@@ -1,6 +1,7 @@
 import errno
 import os
 import yaml
+from zipfile import ZipFile
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -37,12 +38,13 @@ class ProblemData(models.Model):
                                    on_delete=models.CASCADE)
     zipfile = models.FileField(verbose_name=_('data zip file'), storage=problem_data_storage, null=True, blank=True,
                                upload_to=problem_directory_file)
+    test_cases = models.BooleanField(verbose_name=_('override test cases from zip file'), null=True, blank=True)
     generator = models.FileField(verbose_name=_('generator file'), storage=problem_data_storage, null=True, blank=True,
                                  upload_to=problem_directory_file)
     output_prefix = models.IntegerField(verbose_name=_('output prefix length'), blank=True, null=True)
     output_limit = models.IntegerField(verbose_name=_('output limit length'), blank=True, null=True)
     feedback = models.TextField(verbose_name=_('init.yml generation feedback'), blank=True)
-    checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)
+    checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)    
     unicode = models.BooleanField(verbose_name=_('enable unicode'), null=True, blank=True)
     nobigmath = models.BooleanField(verbose_name=_('disable bigInteger / bigDecimal'), null=True, blank=True)
     checker_args = models.TextField(verbose_name=_('checker arguments'), blank=True,
@@ -143,8 +145,32 @@ class ProblemData(models.Model):
 
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:
-            self.__original_zipfile.delete(save=False)
+            self.__original_zipfile.delete(save=False)                               
+
         return super(ProblemData, self).save(*args, **kwargs)
+
+    def load_test_cases_from_zip(self, *args, **kwargs):                    
+        #If test cases should be loaded, a clean load will be performed
+        for tc in ProblemTestCase.objects.filter(dataset_id=self.problem.pk):
+            tc.delete()
+        
+        files = sorted(ZipFile(self.zipfile).namelist())
+        input = [x for x in files if '.in' in x or 'input' in x]
+        output = [x for x in files if '.out' in x or 'output' in x]
+        
+        cases = []
+        for i in range(len(input)):
+            ptc = ProblemTestCase()
+            ptc.dataset = self.problem
+            ptc.is_pretest = False
+            ptc.order = i
+            ptc.input_file = input[i]
+            ptc.output_file = output[i]
+            ptc.points = 0
+            cases.append(ptc)
+
+        return cases
+
 
     def has_yml(self):
         return problem_data_storage.exists('%s/init.yml' % self.problem.code)

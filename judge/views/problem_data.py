@@ -50,7 +50,7 @@ class ProblemDataForm(ModelForm):
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'generator', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
+        fields = ['zipfile', 'generator', 'test_cases', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
                   'checker', 'checker_args']
         widgets = {
             'checker_args': HiddenInput,
@@ -187,13 +187,31 @@ class ProblemDataView(TitleMixin, ProblemManagerMixin):
         valid_files = self.get_valid_files(data_form.instance, post=True)
         data_form.zip_valid = valid_files is not False
         cases_formset = self.get_case_formset(valid_files, post=True)
+        
         if data_form.is_valid() and cases_formset.is_valid():
             data = data_form.save()
-            for case in cases_formset.save(commit=False):
+            
+            for case in cases_formset.save(commit=False):               
                 case.dataset_id = problem.id
                 case.save()
+                
             for case in cases_formset.deleted_objects:
                 case.delete()
+
+            if(not data.zipfile):                
+                #When clearing the zip file, all cases should be also removed     
+                for case in ProblemTestCase.objects.filter(dataset_id=self.object.pk):
+                    case.delete()
+
+            elif(data.test_cases):
+                #If requested to load the testcases, 
+                for case in data.load_test_cases_from_zip():
+                    case.save()
+                
+                #Disabling to prevent erasing custom data
+                data.test_cases = False
+                data.save()
+
             ProblemDataCompiler.generate(problem, data, problem.cases.order_by('order'), valid_files)
             return HttpResponseRedirect(request.get_full_path())
         return self.render_to_response(self.get_context_data(data_form=data_form, cases_formset=cases_formset,

@@ -335,7 +335,7 @@
 {% endblock %}
 
 {% block header %}
-    {% if data_form.instance.has_yml %}
+    {% if data_form.instance.has_yml and not data_form.instance.feedback %}
         <div class="title-line-action">
             [<a href="{{ url('problem_data_init', problem.code) }}">{{ _('View YAML') }}</a>]
         </div>

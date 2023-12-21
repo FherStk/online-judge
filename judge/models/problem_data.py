@@ -130,7 +130,8 @@ class ProblemData(models.Model):
                             ptc.checker_args = ''
 
                         ptc.save()      
-                self.save()
+
+                #self.save()
 
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:

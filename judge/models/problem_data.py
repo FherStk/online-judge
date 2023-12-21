@@ -1,5 +1,6 @@
 import errno
 import os
+import yaml
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -52,6 +53,84 @@ class ProblemData(models.Model):
     def __init__(self, *args, **kwargs):
         super(ProblemData, self).__init__(*args, **kwargs)
         self.__original_zipfile = self.zipfile
+
+        if(not self.zipfile):
+            #Test cases not loaded through the site, but could be manually created within the problems folder            
+            if(self.has_yml()):
+                yml = problem_data_storage.open('%s/init.yml' % self.problem.code)
+                doc = yaml.safe_load(yml)
+
+                #Load same YML data as in site/judge/utils/problem_data.py -> ProblemDataCompiler()
+                if(doc.get('archive')):
+                    self.zipfile = _problem_directory_file(self.problem.code, doc['archive']) 
+                
+                if(doc.get('generator')):
+                    self.generator = _problem_directory_file(self.problem.code, doc['generator']) 
+                
+                if(doc.get('pretest_test_cases')):
+                    self.pretest_test_cases = doc['pretest_test_cases']
+
+                if(doc.get('output_limit_length')):
+                    self.output_limit = doc['output_limit_length']
+
+                if(doc.get('output_prefix_length')):
+                    self.output_prefix = doc['output_prefix_length']
+
+                if(doc.get('unicode')):
+                    self.unicode = doc['unicode']
+
+                if(doc.get('nobigmath')):
+                    self.nobigmath = doc['nobigmath']
+
+                if(doc.get('checker')):
+                    self.checker = doc['checker']                
+
+                if(doc.get('hints')):
+                    for h in doc['hints']:                            
+                        if(h == 'unicode'): self.unicode = True
+                        if(h == 'nobigmath'): self.nobigmath = True
+
+                if(doc.get('test_cases')):
+                    for i, test in enumerate(doc['test_cases']):
+                        ptc = ProblemTestCase()
+                        ptc.dataset = self.problem
+                        ptc.order = i
+
+                        if(test.get('type')):
+                            ptc.type = test['type']     
+
+                        if(test.get('is_pretest')):
+                            ptc.is_pretest = True
+                        
+                        if(test.get('in')):
+                            ptc.input_file = test['in']
+
+                        if(test.get('out')):
+                            ptc.output_file = test['out'] 
+
+                        if(test.get('points')):
+                            ptc.points = test['points'] 
+
+                        if(test.get('generator_args')):
+                            #TODO: check splitlines, maybe a join is needed?
+                            ptc.generator_args = test['generator_args'] 
+
+                        if(test.get('output_prefix_length')):
+                            ptc.output_prefix = doc['output_prefix_length']
+
+                        if(test.get('output_limit_length')):
+                            ptc.output_limit = doc['output_limit_length']
+
+                        if(test.get('checker')):
+                            ptc.checker = doc['checker']
+
+                        ptc.is_pretest = False
+                        if(test.get('checker_args')):
+                            #TODO: checker_args()?
+                            ptc.checker_args = ''
+
+                        ptc.save()      
+                self.save()
 
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:

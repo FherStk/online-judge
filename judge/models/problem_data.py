@@ -119,8 +119,11 @@ class ProblemData(models.Model):
                 ptc.points = test['points'] 
 
             if(test.get('generator_args')):
-                #TODO: check splitlines, maybe a join is needed?
-                ptc.generator_args = test['generator_args'] 
+                args = []
+                for arg in test['generator_args']:
+                    args.append(arg)
+
+                ptc.generator_args = "\n".join(args)
 
             if(test.get('output_prefix_length')):
                 ptc.output_prefix = doc['output_prefix_length']

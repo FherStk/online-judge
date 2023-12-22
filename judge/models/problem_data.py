@@ -38,7 +38,7 @@ class ProblemData(models.Model):
                                    on_delete=models.CASCADE)
     zipfile = models.FileField(verbose_name=_('data zip file'), storage=problem_data_storage, null=True, blank=True,
                                upload_to=problem_directory_file)
-    test_cases_override = models.BooleanField(verbose_name=_('override test cases from zip file'), null=True,
+    test_cases_override = models.BooleanField(verbose_name=_('overwrite test cases from zip file'), null=True,
                                               blank=True)
     test_cases_content = models.TextField(verbose_name=_('test cases content'), blank=True)
     generator = models.FileField(verbose_name=_('generator file'), storage=problem_data_storage, null=True, blank=True,

@@ -211,6 +211,11 @@ class ProblemDataView(TitleMixin, ProblemManagerMixin):
                 for case in data.load_test_cases_from_zip():
                     case.save()                            
 
+            #Once loaded all the test cases (from zip or manually), the content can be setup            
+            if data.problem.include_test_cases: 
+                data.setup_test_cases_content()
+                data.problem.save()
+
             ProblemDataCompiler.generate(problem, data, problem.cases.order_by('order'), valid_files)
             return HttpResponseRedirect(request.get_full_path())
         return self.render_to_response(self.get_context_data(data_form=data_form, cases_formset=cases_formset,

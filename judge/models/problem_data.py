@@ -147,36 +147,30 @@ class ProblemData(models.Model):
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:
             self.__original_zipfile.delete(save=False)
-            self.__original_zipfile = self.zipfile
-            
-            self._setup_test_cases_data()
-            if self.problem.include_test_cases: self.problem.save() #needed to refresh the problem view
+            self.__original_zipfile = self.zipfile            
 
         return super(ProblemData, self).save(*args, **kwargs)
 
-    def _setup_test_cases_data(self):
+    def setup_test_cases_content(self):
         self.test_cases_content = ''
 
-        if self.problem.include_test_cases and self.zipfile:
+        if self.problem.include_test_cases and self.zipfile:            
             zip = ZipFile(self.zipfile)
-            files = sorted(zip.namelist())
-            input = [x for x in files if '.in' in x or 'input' in x]
-            output = [x for x in files if '.out' in x or 'output' in x]
-
+            
             content = []
-            for i in range(len(input)):
-                content.append(f'## Sample Input {i}')
+            for i, tc in enumerate(ProblemTestCase.objects.filter(dataset_id=self.problem.pk)):
+                content.append(f'## Sample Input {i+1}')
                 content.append('')
                 content.append('```')
-                content.append(zip.read(input[i]).decode("utf-8"))
+                content.append(zip.read(tc.input_file).decode("utf-8"))
                 content.append('```')
                 content.append('')
-                content.append(f'## Sample Output {i}')
+                content.append(f'## Sample Output {i+1}')
                 content.append('')
                 content.append('```')
-                content.append(zip.read(output[i]).decode("utf-8"))
+                content.append(zip.read(tc.output_file).decode("utf-8"))
                 content.append('```')
-                content.append('')
+                content.append('')               
             
             self.test_cases_content = '\n'.join(content)            
 

@@ -97,7 +97,7 @@
 
             $table.on('add-row', function (e, $tr) {
                 var $order = $tr.find('input').filter('[id$=order]').attr('type', 'hidden').val(++order);
-                $order.after($('<span>', {'class': 'order'}).text($order.val()-1))
+                $order.after($('<span>', {'class': 'order'}).text($order.val()))
                     .after($('<i>', {'class': 'fa fa-fw fa-lg fa-ellipsis-v'}));
 
                 var $opts = $tr.find('input').slice(2, 6);

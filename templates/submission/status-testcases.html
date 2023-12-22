@@ -61,11 +61,11 @@
                         <i class="fa fa-chevron-right fa-fw"></i>
                     {%- endif -%}
                     {%- if batch.id -%}
-                        <b>{{ _('Case #%(id)d:', id=loop.index-1) }}</b>
+                        <b>{{ _('Case #%(id)d:', id=loop.index) }}</b>
                     {%- elif is_pretest -%}
-                        <b>{{ _('Pretest #%(id)d:', id=test_case_id()-1) }}</b>
+                        <b>{{ _('Pretest #%(id)d:', id=test_case_id()) }}</b>
                     {%- else -%}
-                        <b>{{ _('Test case #%(id)d:', id=test_case_id()-1) }}</b>
+                        <b>{{ _('Test case #%(id)d:', id=test_case_id()) }}</b>
                     {%- endif -%}
                 </td>
 

@@ -1,8 +1,8 @@
 import errno
 import os
-import yaml
 from zipfile import ZipFile
 
+import yaml
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -38,14 +38,15 @@ class ProblemData(models.Model):
                                    on_delete=models.CASCADE)
     zipfile = models.FileField(verbose_name=_('data zip file'), storage=problem_data_storage, null=True, blank=True,
                                upload_to=problem_directory_file)
-    test_cases_override = models.BooleanField(verbose_name=_('override test cases from zip file'), null=True, blank=True)
+    test_cases_override = models.BooleanField(verbose_name=_('override test cases from zip file'), null=True,
+                                              blank=True)
     test_cases_content = models.TextField(verbose_name=_('test cases content'), blank=True)
     generator = models.FileField(verbose_name=_('generator file'), storage=problem_data_storage, null=True, blank=True,
                                  upload_to=problem_directory_file)
     output_prefix = models.IntegerField(verbose_name=_('output prefix length'), blank=True, null=True)
     output_limit = models.IntegerField(verbose_name=_('output limit length'), blank=True, null=True)
     feedback = models.TextField(verbose_name=_('init.yml generation feedback'), blank=True)
-    checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)    
+    checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)
     unicode = models.BooleanField(verbose_name=_('enable unicode'), null=True, blank=True)
     nobigmath = models.BooleanField(verbose_name=_('disable bigInteger / bigDecimal'), null=True, blank=True)
     checker_args = models.TextField(verbose_name=_('checker arguments'), blank=True,
@@ -58,18 +59,18 @@ class ProblemData(models.Model):
         self.__original_zipfile = self.zipfile
 
         if not self.zipfile:
-            #Test cases not loaded through the site, but could be manually created within the problems folder            
+            # Test cases not loaded through the site, but could be manually created within the problems folder
             if self.has_yml():
                 yml = problem_data_storage.open('%s/init.yml' % self.problem.code)
                 doc = yaml.safe_load(yml)
 
-                #Load same YML data as in site/judge/utils/problem_data.py -> ProblemDataCompiler()
+                # Load same YML data as in site/judge/utils/problem_data.py -> ProblemDataCompiler()
                 if doc.get('archive'):
-                    self.zipfile = _problem_directory_file(self.problem.code, doc['archive']) 
-                
+                    self.zipfile = _problem_directory_file(self.problem.code, doc['archive'])
+
                 if doc.get('generator'):
-                    self.generator = _problem_directory_file(self.problem.code, doc['generator']) 
-                
+                    self.generator = _problem_directory_file(self.problem.code, doc['generator'])
+
                 if doc.get('pretest_test_cases'):
                     self.pretest_test_cases = doc['pretest_test_cases']
 
@@ -86,16 +87,18 @@ class ProblemData(models.Model):
                     self.nobigmath = doc['nobigmath']
 
                 if doc.get('checker'):
-                    self.checker = doc['checker']                
+                    self.checker = doc['checker']
 
                 if doc.get('hints'):
-                    for h in doc['hints']:                            
-                        if h == 'unicode': self.unicode = True
-                        if h == 'nobigmath': self.nobigmath = True
+                    for h in doc['hints']:
+                        if h == 'unicode':
+                            self.unicode = True
+                        if h == 'nobigmath':
+                            self.nobigmath = True
 
                 if doc.get('pretest_test_cases'):
                     self._load_problem_test_case(doc, 'pretest_test_cases', False)
-            
+
                 if doc.get('test_cases'):
                     self._load_problem_test_case(doc, 'test_cases', True)
 
@@ -107,26 +110,26 @@ class ProblemData(models.Model):
             ptc.order = i
 
             if test.get('type'):
-                ptc.type = test['type']     
+                ptc.type = test['type']
 
             if test.get('is_pretest'):
                 ptc.is_pretest = True
-            
+
             if test.get('in'):
                 ptc.input_file = test['in']
 
             if test.get('out'):
-                ptc.output_file = test['out'] 
+                ptc.output_file = test['out']
 
             if test.get('points'):
-                ptc.points = test['points'] 
+                ptc.points = test['points']
 
             if test.get('generator_args'):
                 args = []
                 for arg in test['generator_args']:
                     args.append(arg)
 
-                ptc.generator_args = "\n".join(args)
+                ptc.generator_args = '\n'.join(args)
 
             if test.get('output_prefix_length'):
                 ptc.output_prefix = doc['output_prefix_length']
@@ -140,8 +143,8 @@ class ProblemData(models.Model):
                     ptc.checker = chk
                 else:
                     ptc.checker = chk['name']
-                    ptc.checker_args = chk['args']                    
-            
+                    ptc.checker_args = chk['args']
+
             ptc.save()
 
     def save(self, *args, **kwargs):
@@ -154,35 +157,35 @@ class ProblemData(models.Model):
     def setup_test_cases_content(self):
         self.test_cases_content = ''
 
-        if self.problem.include_test_cases and self.zipfile: 
+        if self.problem.include_test_cases and self.zipfile:
             zip = ZipFile(self.zipfile)
-            
+
             content = []
             for i, tc in enumerate(ProblemTestCase.objects.filter(dataset_id=self.problem.pk)):
                 content.append(f'## Sample Input {i+1}')
                 content.append('')
                 content.append('```')
-                content.append(zip.read(tc.input_file).decode("utf-8"))
+                content.append(zip.read(tc.input_file).decode('utf-8'))
                 content.append('```')
                 content.append('')
                 content.append(f'## Sample Output {i+1}')
                 content.append('')
                 content.append('```')
-                content.append(zip.read(tc.output_file).decode("utf-8"))
+                content.append(zip.read(tc.output_file).decode('utf-8'))
                 content.append('```')
-                content.append('')               
-            
-            self.test_cases_content = '\n'.join(content)            
+                content.append('')
 
-    def load_test_cases_from_zip(self, *args, **kwargs):                    
-        #If test cases should be loaded, a clean load will be performed
+            self.test_cases_content = '\n'.join(content)
+
+    def load_test_cases_from_zip(self, *args, **kwargs):
+        # If test cases should be loaded, a clean load will be performed
         for tc in ProblemTestCase.objects.filter(dataset_id=self.problem.pk):
             tc.delete()
-        
+
         files = sorted(ZipFile(self.zipfile).namelist())
         input = [x for x in files if '.in' in x or 'input' in x]
         output = [x for x in files if '.out' in x or 'output' in x]
-        
+
         cases = []
         for i in range(len(input)):
             ptc = ProblemTestCase()
@@ -195,7 +198,6 @@ class ProblemData(models.Model):
             cases.append(ptc)
 
         return cases
-
 
     def has_yml(self):
         return problem_data_storage.exists('%s/init.yml' % self.problem.code)

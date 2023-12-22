@@ -50,8 +50,8 @@ class ProblemDataForm(ModelForm):
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'generator', 'test_cases_override', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
-                  'checker', 'checker_args']
+        fields = ['zipfile', 'generator', 'test_cases_override', 'unicode', 'nobigmath', 'output_limit',
+                  'output_prefix', 'checker', 'checker_args']
         widgets = {
             'checker_args': HiddenInput,
         }
@@ -187,32 +187,32 @@ class ProblemDataView(TitleMixin, ProblemManagerMixin):
         valid_files = self.get_valid_files(data_form.instance, post=True)
         data_form.zip_valid = valid_files is not False
         cases_formset = self.get_case_formset(valid_files, post=True)
-        
+
         if data_form.is_valid() and cases_formset.is_valid():
             data = data_form.save()
-            
-            for case in cases_formset.save(commit=False):               
+
+            for case in cases_formset.save(commit=False):
                 case.dataset_id = problem.id
                 case.save()
-                
+
             for case in cases_formset.deleted_objects:
                 case.delete()
 
             if not data.zipfile:
-                #When clearing the zip file, all cases should be also removed     
+                # When clearing the zip file, all cases should be also removed
                 for case in ProblemTestCase.objects.filter(dataset_id=self.object.pk):
                     case.delete()
 
             elif data.test_cases_override:
-                #Disabling to prevent erasing custom data on next use
+                # Disabling to prevent erasing custom data on next use
                 data.test_cases_override = False
 
-                #If requested to load the testcases, 
+                # If requested to load the testcases,
                 for case in data.load_test_cases_from_zip():
-                    case.save()                            
+                    case.save()
 
-            #Once loaded all the test cases (from zip or manually), the content can be setup            
-            if data.problem.include_test_cases: 
+            # Once loaded all the test cases (from zip or manually), the content can be setup
+            if data.problem.include_test_cases:
                 data.setup_test_cases_content()
                 data.problem.save()
 

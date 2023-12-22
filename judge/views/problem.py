@@ -188,7 +188,7 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
         except ProblemTranslation.DoesNotExist:
             context['title'] = self.object.name
             context['language'] = settings.LANGUAGE_CODE
-            context['description'] = self.object.description            
+            context['description'] = self.object.description
             context['translated'] = False
         else:
             context['title'] = translation.name

@@ -189,11 +189,13 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
             context['title'] = self.object.name
             context['language'] = settings.LANGUAGE_CODE
             context['description'] = self.object.description
+            context['test_cases'] = self.object.data_files.test_cases_content
             context['translated'] = False
         else:
             context['title'] = translation.name
             context['language'] = self.request.LANGUAGE_CODE
             context['description'] = translation.description
+            context['test_cases'] = self.object.data_files.test_cases_content
             context['translated'] = True
 
         if not self.object.og_image or not self.object.summary:

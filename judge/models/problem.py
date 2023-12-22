@@ -19,6 +19,7 @@ from judge.models.profile import Organization, Profile
 from judge.models.runtime import Language
 from judge.user_translations import gettext as user_gettext
 
+
 __all__ = ['ProblemGroup', 'ProblemType', 'Problem', 'ProblemTranslation', 'ProblemClarification', 'License',
            'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet']
 
@@ -120,9 +121,9 @@ class Problem(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('problem name'), db_index=True,
                             help_text=_('The full name of the problem, as shown in the problem list.'),
                             validators=[disallowed_characters_validator])
-    test_cases = models.BooleanField(verbose_name=_('include test cases'), 
+    include_test_cases = models.BooleanField(verbose_name=_('include test cases'), 
                                      help_text=_('If true, the inputs and otuputs of every test case will be automatically added after the body.'),
-                                     default=False)    
+                                     default=False)        
     authorship_name = models.CharField(max_length=100, verbose_name=_('Author\'s name'), blank=True,
                                        help_text=_('Use it for attribution purposes, the original autor\'s name will be added at the end of the problem.'))
     authorship_uri =  models.CharField(max_length=255, verbose_name=_('Autor\'s URI'), blank=True)
@@ -460,6 +461,7 @@ class Problem(models.Model):
 
     def save(self, *args, **kwargs):
         super(Problem, self).save(*args, **kwargs)
+
         if self.code != self.__original_code:
             try:
                 problem_data = self.data_files
@@ -468,7 +470,7 @@ class Problem(models.Model):
             else:
                 problem_data._update_code(self.__original_code, self.code)
 
-    save.alters_data = True
+    save.alters_data = True        
 
     def is_solved_by(self, user):
         # Return true if a full AC submission to the problem from the user exists.

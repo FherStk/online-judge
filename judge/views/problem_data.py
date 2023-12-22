@@ -50,7 +50,7 @@ class ProblemDataForm(ModelForm):
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'generator', 'test_cases', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
+        fields = ['zipfile', 'generator', 'test_cases_override', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
                   'checker', 'checker_args']
         widgets = {
             'checker_args': HiddenInput,
@@ -198,19 +198,18 @@ class ProblemDataView(TitleMixin, ProblemManagerMixin):
             for case in cases_formset.deleted_objects:
                 case.delete()
 
-            if(not data.zipfile):                
+            if not data.zipfile:
                 #When clearing the zip file, all cases should be also removed     
                 for case in ProblemTestCase.objects.filter(dataset_id=self.object.pk):
                     case.delete()
 
-            elif(data.test_cases):
+            elif data.test_cases_override:
+                #Disabling to prevent erasing custom data on next use
+                data.test_cases_override = False
+
                 #If requested to load the testcases, 
                 for case in data.load_test_cases_from_zip():
-                    case.save()
-                
-                #Disabling to prevent erasing custom data
-                data.test_cases = False
-                data.save()
+                    case.save()                            
 
             ProblemDataCompiler.generate(problem, data, problem.cases.order_by('order'), valid_files)
             return HttpResponseRedirect(request.get_full_path())

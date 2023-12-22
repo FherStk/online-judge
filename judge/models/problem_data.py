@@ -147,14 +147,14 @@ class ProblemData(models.Model):
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:
             self.__original_zipfile.delete(save=False)
-            self.__original_zipfile = self.zipfile            
+            self.__original_zipfile = self.zipfile
 
         return super(ProblemData, self).save(*args, **kwargs)
 
     def setup_test_cases_content(self):
         self.test_cases_content = ''
 
-        if self.problem.include_test_cases and self.zipfile:            
+        if self.problem.include_test_cases and self.zipfile: 
             zip = ZipFile(self.zipfile)
             
             content = []

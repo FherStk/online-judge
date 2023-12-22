@@ -188,14 +188,12 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
         except ProblemTranslation.DoesNotExist:
             context['title'] = self.object.name
             context['language'] = settings.LANGUAGE_CODE
-            context['description'] = self.object.description
-            context['test_cases'] = self.object.data_files.test_cases_content
+            context['description'] = self.object.description            
             context['translated'] = False
         else:
             context['title'] = translation.name
             context['language'] = self.request.LANGUAGE_CODE
             context['description'] = translation.description
-            context['test_cases'] = self.object.data_files.test_cases_content
             context['translated'] = True
 
         if not self.object.og_image or not self.object.summary:
@@ -203,6 +201,7 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
                                           context['description'], 'problem')
         context['meta_description'] = self.object.summary or metadata[0]
         context['og_image'] = self.object.og_image or metadata[1]
+        context['test_cases'] = self.object.data_files.test_cases_content if self.object.include_test_cases else ''
 
         context['vote_perm'] = self.object.vote_permission_for_user(user)
         if context['vote_perm'].can_vote():

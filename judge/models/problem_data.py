@@ -161,7 +161,8 @@ class ProblemData(models.Model):
             zip = ZipFile(self.zipfile)
 
             content = []
-            for i, tc in enumerate([x for x in ProblemTestCase.objects.filter(dataset_id=self.problem.pk) if not x.is_pretest]):
+            for i, tc in enumerate([x for x in ProblemTestCase.objects.filter(dataset_id=self.problem.pk)
+                                    if not x.is_pretest]):
                 content.append(f'## Sample Input {i+1}')
                 content.append('')
                 content.append('```')

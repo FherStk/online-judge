@@ -39,7 +39,9 @@
         {{ solution.content|markdown('solution', MATH_ENGINE)|reference|str|safe }}
     </div>
     <hr>
-    {% include "comments/list.html" %}
+    {% if not disable_comments %}
+        {% include "comments/list.html" %}
+    {% endif %}
 {% endblock %}
 
 {% block bodyend %}

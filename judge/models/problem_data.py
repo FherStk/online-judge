@@ -161,20 +161,19 @@ class ProblemData(models.Model):
             zip = ZipFile(self.zipfile)
 
             content = []
-            for i, tc in enumerate(ProblemTestCase.objects.filter(dataset_id=self.problem.pk)):
-                if not tc.is_pretest:                
-                    content.append(f'## Sample Input {i+1}')
-                    content.append('')
-                    content.append('```')
-                    content.append(zip.read(tc.input_file).decode('utf-8'))
-                    content.append('```')
-                    content.append('')
-                    content.append(f'## Sample Output {i+1}')
-                    content.append('')
-                    content.append('```')
-                    content.append(zip.read(tc.output_file).decode('utf-8'))
-                    content.append('```')
-                    content.append('')
+            for i, tc in enumerate([x for x in ProblemTestCase.objects.filter(dataset_id=self.problem.pk) if not x.is_pretest]):
+                content.append(f'## Sample Input {i+1}')
+                content.append('')
+                content.append('```')
+                content.append(zip.read(tc.input_file).decode('utf-8'))
+                content.append('```')
+                content.append('')
+                content.append(f'## Sample Output {i+1}')
+                content.append('')
+                content.append('```')
+                content.append(zip.read(tc.output_file).decode('utf-8'))
+                content.append('```')
+                content.append('')
 
             self.test_cases_content = '\n'.join(content)
 

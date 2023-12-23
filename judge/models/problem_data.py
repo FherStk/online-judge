@@ -162,18 +162,19 @@ class ProblemData(models.Model):
 
             content = []
             for i, tc in enumerate(ProblemTestCase.objects.filter(dataset_id=self.problem.pk)):
-                content.append(f'## Sample Input {i+1}')
-                content.append('')
-                content.append('```')
-                content.append(zip.read(tc.input_file).decode('utf-8'))
-                content.append('```')
-                content.append('')
-                content.append(f'## Sample Output {i+1}')
-                content.append('')
-                content.append('```')
-                content.append(zip.read(tc.output_file).decode('utf-8'))
-                content.append('```')
-                content.append('')
+                if not tc.is_pretest:                
+                    content.append(f'## Sample Input {i+1}')
+                    content.append('')
+                    content.append('```')
+                    content.append(zip.read(tc.input_file).decode('utf-8'))
+                    content.append('```')
+                    content.append('')
+                    content.append(f'## Sample Output {i+1}')
+                    content.append('')
+                    content.append('```')
+                    content.append(zip.read(tc.output_file).decode('utf-8'))
+                    content.append('```')
+                    content.append('')
 
             self.test_cases_content = '\n'.join(content)
 

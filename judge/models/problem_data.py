@@ -97,10 +97,10 @@ class ProblemData(models.Model):
                             self.nobigmath = True
 
                 if doc.get('pretest_test_cases'):
-                    self._load_problem_test_case(doc, 'pretest_test_cases', False)
+                    self._load_problem_test_case(doc, 'pretest_test_cases', True)
 
                 if doc.get('test_cases'):
-                    self._load_problem_test_case(doc, 'test_cases', True)
+                    self._load_problem_test_case(doc, 'test_cases', False)
 
     def _load_problem_test_case(self, doc, field, is_pretest):
         for i, test in enumerate(doc[field]):

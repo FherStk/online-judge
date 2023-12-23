@@ -112,9 +112,6 @@ class ProblemData(models.Model):
             if test.get('type'):
                 ptc.type = test['type']
 
-            if test.get('is_pretest'):
-                ptc.is_pretest = True
-
             if test.get('in'):
                 ptc.input_file = test['in']
 
@@ -123,6 +120,8 @@ class ProblemData(models.Model):
 
             if test.get('points'):
                 ptc.points = test['points']
+            else:
+                ptc.points = 0
 
             if test.get('generator_args'):
                 args = []

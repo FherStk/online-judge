@@ -156,7 +156,7 @@ class ProblemData(models.Model):
     def setup_test_cases_content(self):
         self.test_cases_content = ''
 
-        if self.problem.include_test_cases and self.zipfile:
+        if self.zipfile:
             zip = ZipFile(self.zipfile)
 
             content = []

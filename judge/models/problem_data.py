@@ -183,8 +183,8 @@ class ProblemData(models.Model):
             tc.delete()
 
         files = sorted(ZipFile(self.zipfile).namelist())
-        input = [x for x in files if '.in' in x or 'input' in x]
-        output = [x for x in files if '.out' in x or 'output' in x]
+        input = [x for x in files if '.in' in x or ('input' in x and '.' in x)]
+        output = [x for x in files if '.out' in x or ('output' in x and '.' in x)]
 
         cases = []
         for i in range(len(input)):

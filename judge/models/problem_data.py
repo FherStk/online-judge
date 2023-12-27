@@ -1,15 +1,12 @@
 import errno
 import os
 from zipfile import ZipFile
-from zipfile import ZipFile
 
-import yaml
 import yaml
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from judge.utils.problem_data import ProblemDataStorage
-
 
 
 __all__ = ['problem_data_storage', 'problem_directory_file', 'ProblemData', 'ProblemTestCase', 'CHECKERS']
@@ -46,8 +43,6 @@ class ProblemData(models.Model):
                                  upload_to=problem_directory_file)
     infer_from_zip = models.BooleanField(verbose_name=_('infer test cases from zip'), null=True, blank=True)
     test_cases_content = models.TextField(verbose_name=_('test cases content'), blank=True)
-    infer_from_zip = models.BooleanField(verbose_name=_('infer test cases from zip'), null=True, blank=True)
-    test_cases_content = models.TextField(verbose_name=_('test cases content'), blank=True)
     output_prefix = models.IntegerField(verbose_name=_('output prefix length'), blank=True, null=True)
     output_limit = models.IntegerField(verbose_name=_('output limit length'), blank=True, null=True)
     feedback = models.TextField(verbose_name=_('init.yml generation feedback'), blank=True)
@@ -74,23 +69,9 @@ class ProblemData(models.Model):
                                 'rebuild the test cases using the existing yml file as a template (only works'\
                                 'with simple problems)</a>.'
 
-        if not self.zipfile:
-            # Test cases not loaded through the site, but some data has been found within the problem folder
-            if self.has_yml():
-                self.feedback = 'Warning: problem data found within the file system, but none has been setup '\
-                                'using this site. No actions are needed if the problem is working as intended; '\
-                                "otherwise, you can <a id='perform_infer_test_cases' href='javascript:void(0);'>"\
-                                'infer the testcases using the existing zip file (one entry per file within the '\
-                                "zip)</a> or <a id='perform_rebuild_test_cases' href='javascript:void(0);'>"\
-                                'rebuild the test cases using the existing yml file as a template (only works'\
-                                'with simple problems)</a>.'
-
     def save(self, *args, **kwargs):
         zipfile = self.zipfile
-        zipfile = self.zipfile
         if self.zipfile != self.__original_zipfile:
-            self.__original_zipfile.delete(save=False)  # This clears both zip fields (original and current)
-            self.zipfile = zipfile  # Needed to restore the newly uploaded zip file when replacing an old one
             self.__original_zipfile.delete(save=False)  # This clears both zip fields (original and current)
             self.zipfile = zipfile  # Needed to restore the newly uploaded zip file when replacing an old one
         return super(ProblemData, self).save(*args, **kwargs)
@@ -123,10 +104,7 @@ class ProblemData(models.Model):
 
             for i, tc in enumerate([x for x in test_cases if x.is_pretest]):
                 self.append_tescase_to_statement(zip, content, tc, i)
-                last = i
-
-            if last > 0:
-                last += 1
+                last = i + 1
 
             for i, tc in enumerate([x for x in test_cases if not x.is_pretest]):
                 self.append_tescase_to_statement(zip, content, tc, i + last)
@@ -134,28 +112,32 @@ class ProblemData(models.Model):
             self.test_cases_content = '\n'.join(content)
 
     def append_tescase_to_statement(self, zip, content, tc, i):
-        content.append(f'## Sample Input {i+1}')
-        content.append('')
+        content.append(f'## Test Case {i+1}')
 
         if tc.is_private:
             content.append('*Hidden: this is a private test case!*  ')
 
         else:
+            content.append('### Input')
             content.append('```')
-            content.append(zip.read(tc.input_file).decode('utf-8'))
+            if tc.input_file != '':
+                content.append(zip.read(tc.input_file).decode('utf-8'))
             content.append('```')
 
-        content.append('')
-        content.append(f'## Sample Output {i+1}')
-        content.append('')
-
-        if tc.is_private:
-            content.append('*Hidden: this is a private test case!*  ')
-
-        else:
+            content.append('')
+            content.append('### Output')
             content.append('```')
-            content.append(zip.read(tc.output_file).decode('utf-8'))
+            if tc.output_file != '':
+                content.append(zip.read(tc.output_file).decode('utf-8'))
             content.append('```')
+
+            if tc.explanation_file != '':
+                content.append('')
+                content.append('### Explanation')
+                content.append('```')
+                if tc.explanation_file != '':
+                    content.append(zip.read(tc.explanation_file).decode('utf-8'))
+                content.append('```')
 
         content.append('')
 
@@ -176,6 +158,22 @@ class ProblemData(models.Model):
         input = [x for x in files if '.in' in x or ('input' in x and '.' in x)]
         output = [x for x in files if '.out' in x or ('output' in x and '.' in x)]
 
+        # Not all explanations are mandatory, so there can be gaps!
+        input.sort()
+        output.sort()
+        explanation = []
+        for i in range(len(input)):
+            in_file = input[i]
+
+            xpl_file = in_file.replace('input', 'explanation') if 'input' in in_file else in_file.replace('in', 'xpl')
+            found = [x for x in files if xpl_file in x]
+            found.sort()
+
+            if len(found) > 0:
+                explanation.append(found[0])
+            else:
+                explanation.append('')
+
         cases = []
         for i in range(len(input)):
             list = ProblemTestCase.objects.filter(dataset_id=self.problem.pk, input_file=input[i],
@@ -192,6 +190,7 @@ class ProblemData(models.Model):
                 ptc.order = i
                 ptc.input_file = input[i]
                 ptc.output_file = output[i]
+                ptc.explanation_file = explanation[i]
                 ptc.points = 0
 
             cases.append(ptc)
@@ -261,6 +260,9 @@ class ProblemData(models.Model):
             if test.get('out'):
                 ptc.output_file = test['out']
 
+            if test.get('xpl'):
+                ptc.explanation_file = test['xpl']
+
             if test.get('points'):
                 ptc.points = test['points']
             else:
@@ -306,10 +308,9 @@ class ProblemTestCase(models.Model):
                             default='C')
     input_file = models.CharField(max_length=100, verbose_name=_('input file name'), blank=True)
     output_file = models.CharField(max_length=100, verbose_name=_('output file name'), blank=True)
+    explanation_file = models.CharField(max_length=100, verbose_name=_('explanation file name'), blank=True)
     generator_args = models.TextField(verbose_name=_('generator arguments'), blank=True)
     points = models.IntegerField(verbose_name=_('point value'), blank=True, null=True)
-    is_pretest = models.BooleanField(verbose_name=_('case is pretest?'), default=False)
-    is_private = models.BooleanField(verbose_name=_('case is private?'), default=False)
     is_pretest = models.BooleanField(verbose_name=_('case is pretest?'), default=False)
     is_private = models.BooleanField(verbose_name=_('case is private?'), default=False)
     output_prefix = models.IntegerField(verbose_name=_('output prefix length'), blank=True, null=True)

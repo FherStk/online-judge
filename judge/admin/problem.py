@@ -125,7 +125,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             'fields': (
                 'code', 'name', 'is_public', 'is_manually_managed', 'date', 'authors', 'curators', 'testers',
                 'organizations', 'submission_source_visibility_mode', 'is_full_markup',
-                'description',
+                'description', 'include_test_cases',
             ),
         }),
         (_('Authorship'), {'fields': (('authorship_name', 'authorship_uri'), 'license')}),

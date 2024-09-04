@@ -348,9 +348,13 @@
         </div>
 
         <div id="content-left" class="submission">
-            <div class="ws-closed">
+            <!-- 
+                It works on production but displays the error message, maybe due the network config on our systems.
+                DO NOT CHANGE THIS ON THE DMOJ'S BRANCH (master-dmoj)!!!
+            -->
+            <!-- <div class="ws-closed">
                 <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
-            </div>
+            </div> -->
 
             <div id="submissions-table">
                 {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}

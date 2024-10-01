@@ -134,10 +134,9 @@ class ProblemData(models.Model):
             if tc.explanation_file != '':
                 content.append('')
                 content.append('### Explanation')
-                content.append('```')
+                
                 if tc.explanation_file != '':
                     content.append(zip.read(tc.explanation_file).decode('utf-8'))
-                content.append('```')
 
         content.append('')
 

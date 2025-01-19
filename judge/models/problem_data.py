@@ -31,6 +31,7 @@ CHECKERS = (
     ('sorted', _('Sorted')),
     ('identical', _('Byte identical')),
     ('linecount', _('Line-by-line')),
+    ('exception', _('Exception')),
 )
 
 

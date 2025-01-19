@@ -8,7 +8,7 @@ import judge.models.problem
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('judge', '0147_problem_authorship'),
+        ('judge', '0150_problem_authorship'),
     ]
 
     operations = [

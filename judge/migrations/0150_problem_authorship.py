@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('judge', '0146_comment_revision_count_v2'),
+        ('judge', '0149_add_organization_private_problems_permission'),
     ]
 
     operations = [
